@@ -10,20 +10,20 @@
 Twinkle.shared = function friendlyshared() {
 	if( mw.config.get('wgNamespaceNumber') === 3 && Morebits.isIPAddress(mw.config.get('wgTitle')) ) {
 		var username = mw.config.get('wgTitle').split( '/' )[0].replace( /\"/, "\\\""); // only first part before any slashes
-		twAddPortletLink( function(){ Twinkle.shared.callback(username); }, "Shared IP", "friendly-shared", "Shared IP tagging" );
+		twAddPortletLink( function(){ Twinkle.shared.callback(username); }, "শেয়ার্ড আইপি", "friendly-shared", "শেয়ার্ড আইপি ট্যাগ সংযোজন" );
 	}
 };
 
 Twinkle.shared.callback = function friendlysharedCallback( uid ) {
 	var Window = new Morebits.simpleWindow( 600, 400 );
 	Window.setTitle( "Shared IP address tagging" );
-	Window.setScriptName( "Twinkle" );
-	Window.addFooterLink( "Twinkle help", "WP:TW/DOC#shared" );
+	Window.setScriptName( "টুইংকল" );
+	Window.addFooterLink( "টুইংকল সাহায্য", "WP:TW/DOC#shared" );
 
 	var form = new Morebits.quickForm( Twinkle.shared.callback.evaluate );
 
 	var div = form.append( { type: 'div', id: 'sharedip-templatelist' } );
-	div.append( { type: 'header', label: 'Shared IP address templates' } );
+	div.append( { type: 'header', label: 'শেয়ার্ড আইপি অ্যাড্রেস টেমপ্লেট' } );
 	div.append( { type: 'radio', name: 'shared', list: Twinkle.shared.standardList,
 		event: function( e ) {
 			Twinkle.shared.callback.change_shared( e );
@@ -43,7 +43,7 @@ Twinkle.shared.callback = function friendlysharedCallback( uid ) {
 	org.append( {
 			type: 'input',
 			name: 'host',
-			label: 'Host name (optional)',
+			label: 'হোস্টের নাম (ঐচ্ছিক)',
 			disabled: true,
 			tooltip: 'The host name (for example, proxy.example.com) can be optionally entered here and will be linked by the template.'
 		}
@@ -51,7 +51,7 @@ Twinkle.shared.callback = function friendlysharedCallback( uid ) {
 	org.append( {
 			type: 'input',
 			name: 'contact',
-			label: 'Contact information (only if requested)',
+			label: 'যোগাযোগের তথ্য (কেবলমাত্র যদি অনুরোধ করা হয়ে থাকে)',
 			disabled: true,
 			tooltip: 'You can optionally enter some contact details for the organization.  Use this parameter only if the organization has specifically requested that it be added.  You can use wikimarkup if necessary.'
 		}

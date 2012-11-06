@@ -149,9 +149,9 @@ Twinkle.tag.updateSortOrder = function(e) {
 				name: 'globalize',
 				type: 'select',
 				list: [
-					{ label: "{{globalize}}: article may not represent a worldwide view of the subject", value: "globalize" },
+					{ label: "{{বিশ্বব্যাপি}}: নিবন্ধটি বিষয়বস্তু ও উদাহরণ বিশ্বব্যাপি  ধারণকে উপস্থাপিত করেনি", value: "globalize" },
 					{
-						label: "Region-specific {{globalize}} subtemplates",
+						label: "{{বিশ্বব্যাপি}} টেমপ্লেটের  নির্দিষ্ট আঞ্চলিক  উপ-টেমপ্লেট",
 						list: [
 							{ label: "{{globalize/Australia}}: article deals primarily with the Australian viewpoint", value: "globalize/Australia" },
 							{ label: "{{globalize/Canada}}: article deals primarily with the Canadian viewpoint", value: "globalize/Canada" },
