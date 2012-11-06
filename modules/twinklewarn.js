@@ -47,7 +47,7 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 	var form = new Morebits.quickForm( Twinkle.warn.callback.evaluate );
 	var main_select = form.append( {
 			type:'field',
-			label:' দাখিল করার জন্য সতর্কীকরণ/বিজ্ঞাপ্তি প্রকার পছন্দ করুন',
+			label:'দাখিল করার জন্য সতর্কীকরণ/বিজ্ঞাপ্তি প্রকার পছন্দ করুন',
 			tooltip:'প্রথমে প্রধান সতর্কীকরণ বিভাগ পছন্দ করুন তারপর নির্দিষ্ট সতর্কবার্তা//First choose a main warning group, then the specific warning to issue.'
 		} );
 

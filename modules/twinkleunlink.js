@@ -11,7 +11,7 @@ Twinkle.unlink = function twinkleunlink() {
 	if( mw.config.get('wgNamespaceNumber') < 0 ) {
 		return;
 	}
-	$(twAddPortletLink("#", "Unlink", "tw-unlink", "Unlink backlinks", "")).click(function(){Twinkle.unlink.callback()}); //wrap call in function, callback expects a reason parameter.
+	twAddPortletLink( Twinkle.unlink.callback, "Unlink", "tw-unlink", "Unlink backlinks" );
 };
 
 Twinkle.unlink.getChecked2 = function twinkleunlinkGetChecked2( nodelist ) {
@@ -43,15 +43,16 @@ Twinkle.unlink.callback = function(presetReason) {
 	} );
 
 	var query;
-	if(mw.config.get('wgNamespaceNumber') === Namespace.IMAGE) {
+	if(mw.config.get('wgNamespaceNumber') === 6) {  // File:
 		query = {
 			'action': 'query',
 			'list': [ 'backlinks', 'imageusage' ],
 			'bltitle': mw.config.get('wgPageName'),
 			'iutitle': mw.config.get('wgPageName'),
-			'bllimit': userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
-			'iulimit': userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
-			'blnamespace': Twinkle.getPref('unlinkNamespaces') // Main namespace and portal namespace only, keep on talk pages.
+			'bllimit': Morebits.userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
+			'iulimit': Morebits.userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
+			'blnamespace': Twinkle.getPref('unlinkNamespaces'),
+			'iunamespace': Twinkle.getPref('unlinkNamespaces')
 		};
 	} else {
 		query = {
@@ -59,12 +60,12 @@ Twinkle.unlink.callback = function(presetReason) {
 			'list': 'backlinks',
 			'bltitle': mw.config.get('wgPageName'),
 			'blfilterredir': 'nonredirects',
-			'bllimit': userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
-			'blnamespace': Twinkle.getPref('unlinkNamespaces') // Main namespace and portal namespace only, keep on talk pages.
+			'bllimit': Morebits.userIsInGroup( 'sysop' ) ? 5000 : 500, // 500 is max for normal users, 5000 for bots and sysops
+			'blnamespace': Twinkle.getPref('unlinkNamespaces')
 		};
 	}
 	var wikipedia_api = new Morebits.wiki.api( 'Grabbing backlinks', query, Twinkle.unlink.callbacks.display.backlinks );
-	wikipedia_api.params = { form: form, Window: Window, image: mw.config.get('wgNamespaceNumber') === Namespace.IMAGE };
+	wikipedia_api.params = { form: form, Window: Window, image: mw.config.get('wgNamespaceNumber') === 6 };
 	wikipedia_api.post();
 
 	var root = document.createElement( 'div' );
@@ -82,7 +83,7 @@ Twinkle.unlink.callback.evaluate = function twinkleunlinkCallbackEvaluate(event)
 	Twinkle.unlink.imageusagedone = 0;
 
 	function processunlink(pages, imageusage) {
-		var statusIndicator = new Status((imageusage ? 'Unlinking instances of file usage' : 'Unlinking backlinks'), '0%');
+		var statusIndicator = new Morebits.status((imageusage ? 'Unlinking instances of file usage' : 'Unlinking backlinks'), '0%');
 		var total = pages.length;  // removing doubling of this number - no apparent reason for it
 
 		Morebits.wiki.addCheckpoint();
@@ -97,8 +98,8 @@ Twinkle.unlink.callback.evaluate = function twinkleunlinkCallbackEvaluate(event)
 		var params = { reason: reason, imageusage: imageusage, globalstatus: statusIndicator, current: 0, total: total };
 		for (var i = 0; i < pages.length; ++i)
 		{
-			var myparams = clone(params);
-			var articlepage = new Wikipedia.page(pages[i], 'Unlinking in article "' + pages[i] + '"');
+			var myparams = $.extend({}, params);
+			var articlepage = new Morebits.wiki.page(pages[i], 'Unlinking in article "' + pages[i] + '"');
 			articlepage.setCallbackParameters(myparams);
 			articlepage.load(imageusage ? Twinkle.unlink.callbacks.unlinkImageInstances : Twinkle.unlink.callbacks.unlinkBacklinks);
 		}
@@ -151,7 +152,7 @@ Twinkle.unlink.callbacks = {
 					apiobj.params.form.append( { type:'header', label: 'File usage' } );
 					namespaces = [];
 					$.each(Twinkle.getPref('unlinkNamespaces'), function(k, v) {
-						namespaces.push(Wikipedia.namespacesFriendly[v]);
+						namespaces.push(Morebits.wikipedia.namespacesFriendly[v]);
 					});
 					apiobj.params.form.append( {
 						type: 'div',
@@ -183,7 +184,7 @@ Twinkle.unlink.callbacks = {
 				apiobj.params.form.append( { type:'header', label: 'Backlinks' } );
 				namespaces = [];
 				$.each(Twinkle.getPref('unlinkNamespaces'), function(k, v) {
-					namespaces.push(Wikipedia.namespacesFriendly[v]);
+					namespaces.push(Morebits.wikipedia.namespacesFriendly[v]);
 				});
 				apiobj.params.form.append( {
 					type: 'div',
@@ -257,9 +258,6 @@ Twinkle.unlink.callbacks = {
 		pageobj.save(Twinkle.unlink.callbacks.success);
 	},
 	success: function twinkleunlinkCallbackSuccess(pageobj) {
-		var statelem = pageobj.getStatusElement();
-		statelem.info('done');
-
 		var params = pageobj.getCallbackParameters();
 		var total = params.total;
 		var now = parseInt( 100 * (params.imageusage ? ++(Twinkle.unlink.imageusagedone) : ++(Twinkle.unlink.backlinksdone))/total, 10 ) + '%';

@@ -5,14 +5,14 @@ Twinkle is a JavaScript library and application that gives Wikipedians a quick w
 
 It is based upon the `morebits.js` library, which forms the basis for many Wikipedia scripts and editing tools.
 
-See [Wikipedia:Twinkle][] on English Wikipedia for more information.
+See [Wikipedia:Twinkle][] on the Bengali Wikipedia for more information. For checking the English version follow [WP:Twinkle][] on English Wikipedia.
 
 [AzaToth][] is the original author and maintainer of the tool, as well as the `morebits.js` library.
 
 Updating scripts on Wikipedia
 -----------------------------
 
-To generate the concatenated Twinkle script, use this `bash` command:
+To generate the concatenated Twinkle script, use the following `bash` command:
 
     awk 'FNR==1{print ""}{print}' twinkle.header.js modules/*.js twinkle.footer.js > alltwinkle.js
 
@@ -30,21 +30,21 @@ If `morebits.js` and/or `morebits.css` need to be updated, they should be synche
 Synchronization (for developers)
 --------------------------------
 
-There is a synchronization script called `sync.pl`, which can be used to pull and push files to wikipedia. 
+There is a synchronization script called `sync.pl`, which can be used to pull and push files to Wikipedia. 
 
-The program depends on Perl 5.10 and the modules [`Git::Repository`][Git::Repository] and [`MediaWiki::Bot`][MediaWiki::Bot], which can be installed easy using [`App::cpanminus`][App::cpanminus]:
+The program depends on Perl 5.10 and the modules [`Git::Repository`][Git::Repository] and [`MediaWiki::Bot`][MediaWiki::Bot], which can be installed easily using [`App::cpanminus`][App::cpanminus]:
 
     cpanm --sudo install Git::Repository MediaWiki::Bot
 
-When running the program, you can either enter your credentials on the command line using the `--username` and `--password` parameters, but it is recommended to save them in a file called `~/.mwbotrc` using following format:
+When running the program, you can enter your credentials on the command line using the `--username` and `--password` parameters, but it is recommended to save them in a file called `~/.mwbotrc` using the following format:
 
     username => "Username",
     password => "password",
     base     => "User::Username"
 
-where `base` is the wiki path to prefix the files for `pull` and `push`;
+where `base` is the wiki path to prefix the files for `pull` and `push`.
 
-Notice that your working directory **must** be clean, if not, either `stash` or `commit` your changes.
+Notice that your working directory **must** be clean; if not, either `stash` or `commit` your changes.
 
 To `pull` user Foobar's changes, do:
 
@@ -64,12 +64,13 @@ The edit summary will contain the branch, the last commit sha, and the oneliner 
 Style guideline
 ---------------
 
-While old legacy code has many different and incoherent styles, it's decided to utilize a more coherent style throughout the code.
+While old legacy code has many different and incoherent styles, it has been decided to utilize a more coherent style throughout the code.
 
 The [jQuery Core Style Guideline][jq_style] is what we will hereafter use as our style guideline.
 
 [Wikipedia:Twinkle]: http://bn.wikipedia.org/wiki/Wikipedia:Twinkle
-[AzaToth]: http://bn.wikipedia.org/wiki/User:AzaToth
+[WP:Twinkle]: http://en.wikipedia.org/wiki/Wikipedia:Twinkle
+[AzaToth]: http://en.wikipedia.org/wiki/User:AzaToth
 [MediaWiki:Gadget-Twinkle.js]: http://bn.wikipedia.org/wiki/MediaWiki:Gadget-Twinkle.js
 [User:AzaToth/twinkle.js]: http://bn.wikipedia.org/wiki/User:AzaToth/twinkle.js
 [MediaWiki:Gadget-morebits.js]: http://bn.wikipedia.org/wiki/MediaWiki:Gadget-morebits.js

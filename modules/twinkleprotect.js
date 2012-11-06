@@ -58,13 +58,14 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 				{
 					label: 'Request page protection',
 					value: 'request',
-					tooltip: 'If you want to request protection via WP:RPP' + (userIsInGroup('sysop') ? ' instead of doing the protection by yourself.' : '.'),
-					checked: !userIsInGroup('sysop')
+					tooltip: 'If you want to request protection via WP:RPP' + (Morebits.userIsInGroup('sysop') ? ' instead of doing the protection by yourself.' : '.'),
+					checked: !Morebits.userIsInGroup('sysop')
 				},
 				{
 					label: 'Tag page with protection template',
 					value: 'tag',
-					tooltip: 'If the protecting admin forgot to apply a protection template, or you have just protected the page without tagging, you can use this to apply the appropriate protection tag.'
+					tooltip: 'If the protecting admin forgot to apply a protection template, or you have just protected the page without tagging, you can use this to apply the appropriate protection tag.',
+					disabled: mw.config.get('wgArticleId') === 0
 				}
 			]
 		} );
@@ -84,10 +85,6 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 	evt.initEvent( 'change', true, true );
 	result.actiontype[0].dispatchEvent( evt );
 
-	// reduce vertical height of dialog
-	$('select[name="editlevel"], select[name="editexpiry"], select[name="moveexpiry"], select[name="movelevel"], select[name="createexpiry"], select[name="createlevel"]').
-		parent().css({ display: 'inline-block', marginRight: '0.5em' });
-
 	// get current protection level asynchronously
 	Morebits.wiki.actionCompleted.postfix = false;  // avoid Action: completed notice
 	if (Morebits.userIsInGroup('sysop')) {
@@ -98,7 +95,7 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 			titles: mw.config.get('wgPageName')
 		};
 		Morebits.status.init($('div[name="currentprot"] span').last()[0]);
-		var statelem = new Status("Current protection level");
+		var statelem = new Morebits.status("Current protection level");
 		var wpapi = new Morebits.wiki.api("retrieving...", query, Twinkle.protect.callback.protectionLevel, statelem);
 		wpapi.post();
 	}
@@ -290,7 +287,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 					});
 				createlevel.append({
 						type: 'option',
-						label: 'All (registered users)',
+						label: 'All',
 						value: 'all'
 					});
 				createlevel.append({
@@ -431,9 +428,13 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 
 		// re-add protection level text, if it's available
 		if (Twinkle.protect.protectionLevel) {
-			Status.init($('div[name="currentprot"] span').last()[0]);
-			Status.info("Current protection level", Twinkle.protect.protectionLevel);
+			Morebits.status.init($('div[name="currentprot"] span').last()[0]);
+			Morebits.status.info("Current protection level", Twinkle.protect.protectionLevel);
 		}
+
+		// reduce vertical height of dialog
+		$(e.target.form).find('select[name="editlevel"], select[name="editexpiry"], select[name="moveexpiry"], select[name="movelevel"], select[name="createexpiry"], select[name="createlevel"]').
+			parent().css({ display: 'inline-block', marginRight: '0.5em' });
 	}
 };
 
@@ -766,7 +767,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 	switch (actiontype) {
 		case 'protect':
 			// protect the page
-			var thispage = new Wikipedia.page(mw.config.get('wgPageName'), "Protecting page");
+			var thispage = new Morebits.wiki.page(mw.config.get('wgPageName'), "Protecting page");
 			if (mw.config.get('wgArticleId')) {
 				if (form.editmodify.checked) {
 					thispage.setEditProtection(form.editlevel.value, form.editexpiry.value);
@@ -795,18 +796,19 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 		case 'tag':
 
 			if (actiontype === 'tag') {
-				SimpleWindow.setButtonsEnabled( false );
-				Status.init( form );
-				Wikipedia.actionCompleted.redirect = mw.config.get('wgPageName');
-				Wikipedia.actionCompleted.notice = "Tagging complete";
+				Morebits.simpleWindow.setButtonsEnabled( false );
+				Morebits.status.init( form );
+				Morebits.wiki.actionCompleted.redirect = mw.config.get('wgPageName');
+				Morebits.wiki.actionCompleted.followRedirect = false;
+				Morebits.wiki.actionCompleted.notice = "Tagging complete";
 			}
 
 			if (tagparams.tag === 'noop') {
-				Status.info("Applying protection template", "nothing to do");
+				Morebits.status.info("Applying protection template", "nothing to do");
 				break;
 			}
 
-			var protectedPage = new Wikipedia.page( mw.config.get('wgPageName'), 'Tagging page');
+			var protectedPage = new Morebits.wiki.page( mw.config.get('wgPageName'), 'Tagging page');
 			protectedPage.setCallbackParameters( tagparams );
 			protectedPage.load( Twinkle.protect.callbacks.taggingPage );
 			break;
@@ -938,8 +940,12 @@ Twinkle.protect.callbacks = {
 		var tag, summary;
 
 		var oldtag_re = /\s*(?:<noinclude>)?\s*\{\{\s*(pp-[^{}]*?|protected|(?:t|v|s|p-|usertalk-v|usertalk-s|sb|move)protected(?:2)?|protected template|privacy protection)\s*?\}\}\s*(?:<\/noinclude>)?\s*/gi;
-
-		text = text.replace( oldtag_re, '' );
+		var re_result = oldtag_re.exec(text);
+		if (re_result) {
+			if (confirm("{{" + re_result[1] + "}} was found on the page. \nClick OK to remove it, or click Cancel to leave it there.")) {
+				text = text.replace( oldtag_re, '' );
+			}
+		}
 
 		if ( params.tag !== 'none' ) {
 			tag = params.tag;

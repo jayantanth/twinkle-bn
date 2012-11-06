@@ -5,7 +5,9 @@
  * |           Please discuss changes at [[WT:TW]] before editing.           |
  * +-------------------------------------------------------------------------+
  *
- * Imported from github [https://github.com/azatoth/twinkle]
+ * Imported from github [https://github.com/azatoth/twinkle].
+ * All changes should be made in the repository, otherwise they will be lost.
+ *
  * To update this script from github, you must have a local repository set up. Then
  * follow the instructions at [https://github.com/azatoth/twinkle/blob/master/README.md].
  *
@@ -14,18 +16,20 @@
  * This is AzaToth's Twinkle, the popular script sidekick for newbies, admins, and
  * every Wikipedian in between. Visit [[WP:TW]] for more information.
  */
- 
+
 //<nowiki>
- 
+
+( function ( window, document, $, undefined ) { // Wrap with anonymous function
+
 var Twinkle = {};
 window.Twinkle = Twinkle;  // allow global access
- 
+
 // for use by custom modules (normally empty)
 Twinkle.initCallbacks = [];
-Twinkle.addInitCallback = function twinkleAddInitCallback(func) {
-	Twinkle.initCallbacks.push(func);
+Twinkle.addInitCallback = function twinkleAddInitCallback( func ) {
+	Twinkle.initCallbacks.push( func );
 };
- 
+
 Twinkle.defaultConfig = {};
 /**
  * Twinkle.defaultConfig.twinkle and Twinkle.defaultConfig.friendly
@@ -60,15 +64,17 @@ Twinkle.defaultConfig.twinkle = {
 	logProdPages: false,
 	prodLogPageName: "PROD log",
 	 // CSD
+	speedySelectionStyle: "buttonClick",
 	speedyPromptOnG7: false,
 	watchSpeedyPages: [ "g3", "g5", "g10", "g11", "g12" ],
 	markSpeedyPagesAsPatrolled: true,
 	// these next two should probably be identical by default
-	notifyUserOnSpeedyDeletionNomination:    [ "db", "g1", "g2", "g3", "g4", "g10", "g11", "g12", "a1", "a2", "a3", "a5", "a7", "a9", "a10", "f1", "f2", "f3", "f7", "f9", "f10", "u3", "t2", "t3", "p1", "p2" ],
-	welcomeUserOnSpeedyDeletionNotification: [ "db", "g1", "g2", "g3", "g4", "g10", "g11", "g12", "a1", "a2", "a3", "a5", "a7", "a9", "a10", "f1", "f2", "f3", "f7", "f9", "f10", "u3", "t2", "t3", "p1", "p2" ],
+	notifyUserOnSpeedyDeletionNomination:    [ "db", "g1", "g2", "g3", "g4", "g6", "g10", "g11", "g12", "a1", "a2", "a3", "a5", "a7", "a9", "a10", "f1", "f2", "f3", "f7", "f9", "f10", "u3", "t2", "t3", "p1", "p2" ],
+	welcomeUserOnSpeedyDeletionNotification: [ "db", "g1", "g2", "g3", "g4", "g6", "g10", "g11", "g12", "a1", "a2", "a3", "a5", "a7", "a9", "a10", "f1", "f2", "f3", "f7", "f9", "f10", "u3", "t2", "t3", "p1", "p2" ],
 	promptForSpeedyDeletionSummary: [ "db", "g1", "g2", "g3", "g4", "g6", "g7", "g8", "g10", "g11", "g12", "a1", "a2", "a3", "a5", "a7", "a9", "a10", "f2", "f4", "f7", "f8", "f10", "t2", "t3", "p1", "p2" ],
 	openUserTalkPageOnSpeedyDelete: [ "db", "g1", "g2", "g3", "g4", "g5", "g10", "g11", "g12", "a1", "a3", "a7", "a9", "a10", "f3", "f7", "f9", "u3", "t2", "p1" ],
 	deleteTalkPageOnDelete: false,
+	deleteRedirectsOnDelete: true,
 	deleteSysopDefaultToTag: false,
 	speedyWindowHeight: 500,
 	speedyWindowWidth: 800,
@@ -100,22 +106,22 @@ Twinkle.defaultConfig.twinkle = {
 	deliMax: 5000,
 	proddeleteChunks: 50
 };
- 
+
 // now some skin dependent config.
-if (mw.config.get("skin") === 'vector') {
-	Twinkle.defaultConfig.twinkle.portletArea = 'right-navigation';
-	Twinkle.defaultConfig.twinkle.portletId   = 'p-twinkle';
-	Twinkle.defaultConfig.twinkle.portletName = 'টুইংকল';
-	Twinkle.defaultConfig.twinkle.portletType = 'menu';
-	Twinkle.defaultConfig.twinkle.portletNext = 'p-search';
+if ( mw.config.get( "skin" ) === "vector" ) {
+	Twinkle.defaultConfig.twinkle.portletArea = "right-navigation";
+	Twinkle.defaultConfig.twinkle.portletId   = "p-twinkle";
+	Twinkle.defaultConfig.twinkle.portletName = "টুইংকল";
+	Twinkle.defaultConfig.twinkle.portletType = "menu";
+	Twinkle.defaultConfig.twinkle.portletNext = "p-search";
 } else {
 	Twinkle.defaultConfig.twinkle.portletArea =  null;
-	Twinkle.defaultConfig.twinkle.portletId   = 'p-cactions';
+	Twinkle.defaultConfig.twinkle.portletId   = "p-cactions";
 	Twinkle.defaultConfig.twinkle.portletName = null;
 	Twinkle.defaultConfig.twinkle.portletType = null;
 	Twinkle.defaultConfig.twinkle.portletNext = null;
 }
- 
+
 Twinkle.defaultConfig.friendly = {
 	 // Tag
 	groupByDefault: true,
@@ -131,54 +137,53 @@ Twinkle.defaultConfig.friendly = {
 	insertHeadings: true,
 	insertUsername: true,
 	insertSignature: true,  // sign welcome templates, where appropriate
-	markWelcomesAsMinor: true,
 	quickWelcomeMode: "norm",
 	quickWelcomeTemplate: "welcome",
-	maskTemplateInSummary: true,
 	customWelcomeList: [],
 	 // Talkback
 	markTalkbackAsMinor: true,
 	insertTalkbackSignature: true,  // always sign talkback templates
 	talkbackHeading: "ফিরতি বার্তা",
 	adminNoticeHeading: "নোটিশ",
+	mailHeading: "আপনার ইমেইল এসেছে!",
 	 // Shared
 	markSharedIPAsMinor: true
 };
- 
-Twinkle.getPref = function twinkleGetPref(name) {
+
+Twinkle.getPref = function twinkleGetPref( name ) {
 	var result;
-	if (typeof(Twinkle.prefs) === "object" && typeof(Twinkle.prefs.twinkle) === "object") {
+	if ( typeof Twinkle.prefs === "object" && typeof Twinkle.prefs.twinkle === "object" ) {
 		// look in Twinkle.prefs (twinkleoptions.js)
 		result = Twinkle.prefs.twinkle[name];
-	} else if (typeof(window.TwinkleConfig) === "object") {
+	} else if ( typeof window.TwinkleConfig === "object" ) {
 		// look in TwinkleConfig
 		result = window.TwinkleConfig[name];
 	}
- 
-	if (typeof(result) === "undefined") {
+
+	if ( result === undefined ) {
 		return Twinkle.defaultConfig.twinkle[name];
 	}
 	return result;
 };
- 
+
 Twinkle.getFriendlyPref = function twinkleGetFriendlyPref(name) {
 	var result;
-	if (typeof(Twinkle.prefs) === "object" && typeof(Twinkle.prefs.friendly) === "object") {
+	if ( typeof Twinkle.prefs === "object" && typeof Twinkle.prefs.friendly === "object" ) {
 		// look in Twinkle.prefs (twinkleoptions.js)
-		result = Twinkle.prefs.friendly[name];
-	} else if (typeof(window.FriendlyConfig) === "object") {
+		result = Twinkle.prefs.friendly[ name ];
+	} else if ( typeof window.FriendlyConfig === "object" ) {
 		// look in FriendlyConfig
-		result = window.FriendlyConfig[name];
+		result = window.FriendlyConfig[ name ];
 	}
- 
-	if (typeof(result) === "undefined") {
-		return Twinkle.defaultConfig.friendly[name];
+
+	if ( result === undefined ) {
+		return Twinkle.defaultConfig.friendly[ name ];
 	}
 	return result;
 };
- 
- 
- 
+
+
+
 /**
  * **************** twAddPortlet() ****************
  *
@@ -214,35 +219,35 @@ function twAddPortlet( navigation, id, text, type, nextnodeid )
 	if ( !root ) {
 		return null;
 	}
- 
+
 	var item = document.getElementById( id );
-	if (item) {
-		if (item.parentNode && item.parentNode === root) {
+	if ( item ) {
+		if ( item.parentNode && item.parentNode === root ) {
 			return item;
 		}
 		return null;
 	}
- 
+
 	var nextnode;
-	if (nextnodeid) {
+	if ( nextnodeid ) {
 		nextnode = document.getElementById(nextnodeid);
 	}
- 
+
 	//verify/normalize input
-	type = (skin === "vector" && type === "menu" && (navigation === "left-navigation" || navigation === "right-navigation")) ? "menu" : "";
+	type = ( skin === "vector" && type === "menu" && ( navigation === "left-navigation" || navigation === "right-navigation" )) ? "menu" : "";
 	var outerDivClass;
 	var innerDivClass;
-	switch (skin)
+	switch ( skin )
 	{
 		case "vector":
-			if (navigation !== "portal" && navigation !== "left-navigation" && navigation !== "right-navigation") {
+			if ( navigation !== "portal" && navigation !== "left-navigation" && navigation !== "right-navigation" ) {
 				navigation = "mw-panel";
 			}
-			outerDivClass = (navigation === "mw-panel") ? "portal" : (type === "menu" ? "vectorMenu extraMenu" : "vectorTabs extraMenu");
-			innerDivClass = (navigation === "mw-panel") ? 'body' : (type === 'menu' ? 'menu':'');
+			outerDivClass = ( navigation === "mw-panel" ) ? "portal" : ( type === "menu" ? "vectorMenu extraMenu" : "vectorTabs extraMenu" );
+			innerDivClass = ( navigation === "mw-panel" ) ? "body" : ( type === "menu" ? "menu" : "" );
 			break;
 		case "modern":
-			if (navigation !== "mw_portlets" && navigation !== "mw_contentwrapper") {
+			if ( navigation !== "mw_portlets" && navigation !== "mw_contentwrapper" ) {
 				navigation = "mw_portlets";
 			}
 			outerDivClass = "portlet";
@@ -254,31 +259,31 @@ function twAddPortlet( navigation, id, text, type, nextnodeid )
 			innerDivClass = "pBody";
 			break;
 	}
- 
-	//Build the DOM elements.
-	var outerDiv = document.createElement( 'div' );
-	outerDiv.className = outerDivClass+" emptyPortlet";
+
+	// Build the DOM elements.
+	var outerDiv = document.createElement( "div" );
+	outerDiv.className = outerDivClass + " emptyPortlet";
 	outerDiv.id = id;
-	if (type === "menu") {
-		// fix drop-down arrow image in Vector skin
+	if ( type === "menu" ) {
+		// Fix drop-down arrow image in Vector skin
 		outerDiv.style.backgroundImage = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAQCAMAAAAlM38UAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA9QTFRFsbGxmpqa3d3deXl58/n79CzHcQAAAAV0Uk5T/////wD7tg5TAAAAMklEQVR42mJgwQoYBkqYiZEZAhiZUFRDxWGicEPA4nBRhNlAcYQokpVMDEwD6kuAAAMAyGMFQVv5ldcAAAAASUVORK5CYII=")';
-		outerDiv.style.backgroundPosition = 'right 60%';
+		outerDiv.style.backgroundPosition = "right 60%";
 	}
 	if ( nextnode && nextnode.parentNode === root ) {
 		root.insertBefore( outerDiv, nextnode );
 	} else {
 		root.appendChild( outerDiv );
 	}
- 
-	var h5 = document.createElement( 'h5' );
-	if (type === 'menu') {
-		var span = document.createElement( 'span' );
+
+	var h5 = document.createElement( "h5" );
+	if ( type === "menu" ) {
+		var span = document.createElement( "span" );
 		span.appendChild( document.createTextNode( text ) );
 		h5.appendChild( span );
- 
-		var a = document.createElement( 'a' );
+
+		var a = document.createElement( "a" );
 		a.href = "#";
-		span = document.createElement( 'span' );
+		span = document.createElement( "span" );
 		span.appendChild( document.createTextNode( text ) );
 		a.appendChild( span );
 		h5.appendChild( a );
@@ -286,30 +291,37 @@ function twAddPortlet( navigation, id, text, type, nextnodeid )
 		h5.appendChild( document.createTextNode( text ) );
 	}
 	outerDiv.appendChild( h5 );
- 
-	var innerDiv = document.createElement( 'div' ); //not strictly necessary with type vectorTabs, or other skins.
+
+	var innerDiv = document.createElement( "div" ); // Not strictly necessary with type vectorTabs, or other skins.
 	innerDiv.className = innerDivClass;
 	outerDiv.appendChild(innerDiv);
- 
-	var ul = document.createElement( 'ul' );
+
+	var ul = document.createElement( "ul" );
 	innerDiv.appendChild( ul );
- 
+
 	return outerDiv;
 }
- 
- 
+
+
 /**
  * **************** twAddPortletLink() ****************
  * Builds a portlet menu if it doesn't exist yet, and add the portlet link.
+ * @param task: Either a URL for the portlet link or a function to execute.
  */
-function twAddPortletLink( href, text, id, tooltip, accesskey, nextnode )
+function twAddPortletLink( task, text, id, tooltip )
 {
-	if (Twinkle.getPref("portletArea") !== null) {
-		twAddPortlet(Twinkle.getPref("portletArea"), Twinkle.getPref("portletId"), Twinkle.getPref("portletName"), Twinkle.getPref("portletType"), Twinkle.getPref("portletNext"));
+	if ( Twinkle.getPref("portletArea") !== null ) {
+		twAddPortlet( Twinkle.getPref( "portletArea" ), Twinkle.getPref( "portletId" ), Twinkle.getPref( "portletName" ), Twinkle.getPref( "portletType" ), Twinkle.getPref( "portletNext" ));
 	}
-	return mw.util.addPortletLink( Twinkle.getPref("portletId"), href, text, id, tooltip, accesskey, nextnode );
+	var link = mw.util.addPortletLink( Twinkle.getPref( "portletId" ), typeof task === "string" ? task : "#", text, id, tooltip );
+	if ( $.isFunction( task ) ) {
+		$( link ).click(function ( ev ) {
+			task();
+			ev.preventDefault();
+		});
+	}
+	return link;
 }
- 
-// check if account is experienced enough for more advanced functions
-var twinkleUserAuthorized = userIsInGroup( 'autoconfirmed' ) || userIsInGroup( 'confirmed' );
- 
+
+// Check if account is experienced enough to use Twinkle
+var twinkleUserAuthorized = Morebits.userIsInGroup( "autoconfirmed" ) || Morebits.userIsInGroup( "confirmed" );
