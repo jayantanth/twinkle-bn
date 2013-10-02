@@ -1,3 +1,9 @@
+//<nowiki>
+
+
+(function($){
+	
+	
 /*
  ****************************************
  *** friendlytag.js: Tag module
@@ -14,17 +20,17 @@ Twinkle.tag = function friendlytag() {
 	// redirect tagging
 	if( Morebits.wiki.isPageRedirect() ) {
 		Twinkle.tag.mode = 'redirect';
-		twAddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "ট্যাগ পুনর্নির্দেশনা" );
+		Twinkle.AddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "ট্যাগ পুনর্নির্দেশনা" );
 	}
 	// file tagging
 	else if( mw.config.get('wgNamespaceNumber') === 6 && !document.getElementById("mw-sharedupload") && document.getElementById("mw-imagepage-section-filehistory") ) {
 		Twinkle.tag.mode = 'file';
-		twAddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "ফাইলে রক্ষণাবেক্ষণ ট্যাগ যুক্ত করুন" );
+	        Twinkle.AddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "ফাইলে রক্ষণাবেক্ষণ ট্যাগ যুক্ত করুন" );
 	}
 	// article/draft article tagging
 	else if( ( mw.config.get('wgNamespaceNumber') === 0 || /^Wikipedia([ _]talk)?\:Articles[ _]for[ _]creation\//.exec(mw.config.get('wgPageName')) ) && mw.config.get('wgCurRevisionId') ) {
 		Twinkle.tag.mode = 'article';
-		twAddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "নিবন্ধে রক্ষণাবেক্ষণ ট্যাগ যুক্ত করুন" );
+		Twinkle.AddPortletLink( Twinkle.tag.callback, "ট্যাগ", "friendly-tag", "নিবন্ধে রক্ষণাবেক্ষণ ট্যাগ যুক্ত করুন" );
 	}
 };
  
@@ -35,6 +41,20 @@ Twinkle.tag.callback = function friendlytagCallback( uid ) {
 	Window.addFooterLink( "টুইংকল সাহায্য", "WP:TW/DOC#tag" );
 
 	var form = new Morebits.quickForm( Twinkle.tag.callback.evaluate );
+	
+	if (document.getElementsByClassName("patrollink").length) {
+		form.append( {
+			type: 'checkbox',
+			list: [
+				{
+					label: 'Mark the page as patrolled',
+					value: 'patrolPage',
+					name: 'patrolPage',
+					checked: Twinkle.getFriendlyPref('markTaggedPagesAsPatrolled')
+				}
+			]
+		} );
+	}
 
 	switch( Twinkle.tag.mode ) {
 		case 'article':
